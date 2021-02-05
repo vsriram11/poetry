@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from poetry.core.packages import dependency_from_pep_508
+from poetry.core.packages.dependency import Dependency
 from poetry.core.toml.file import TOMLFile
 from poetry.factory import Factory
 from poetry.packages import Locker as BaseLocker
@@ -233,20 +233,20 @@ def test_exporter_can_export_requirements_txt_with_nested_packages_and_markers(
         content = f.read()
 
     expected = {
-        "a": dependency_from_pep_508("a==1.2.3; python_version < '3.7'"),
-        "b": dependency_from_pep_508(
+        "a": Dependency.create_from_pep_508("a==1.2.3; python_version < '3.7'"),
+        "b": Dependency.create_from_pep_508(
             "b==4.5.6; platform_system == 'Windows' and python_version < '3.7'"
         ),
-        "c": dependency_from_pep_508(
+        "c": Dependency.create_from_pep_508(
             "c==7.8.9; sys_platform == 'win32' and python_version < '3.7'"
         ),
-        "d": dependency_from_pep_508(
+        "d": Dependency.create_from_pep_508(
             "d==0.0.1; python_version < '3.7' and platform_system == 'Windows' and sys_platform == 'win32'"
         ),
     }
 
     for line in content.strip().split("\n"):
-        dependency = dependency_from_pep_508(line)
+        dependency = Dependency.create_from_pep_508(line)
         assert dependency.name in expected
         expected_dependency = expected.pop(dependency.name)
         assert dependency == expected_dependency
